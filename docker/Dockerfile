@@ -6,7 +6,7 @@ ENV PATH="/usr/sbin:${PATH}"
 RUN echo "deb http://archive.debian.org/debian stretch main contrib non-free" > /etc/apt/sources.list
 RUN apt-get -y update && \
     apt-get -y install libnetfilter-queue-dev iptables tcpdump netcat net-tools git graphviz openssh-server && \
-    pip install netfilterqueue requests dnspython anytree graphviz netifaces paramiko tld docker scapy==2.4.3 psutil && \
+    pip install numpy netfilterqueue requests dnspython anytree graphviz netifaces paramiko tld docker scapy==2.4.3 psutil joblib && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install tshark
 
 # Enable root SSH login for client testing

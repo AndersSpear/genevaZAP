@@ -4,17 +4,21 @@ from scapy.all import IP, TCP
 from joblib import load
 import numpy as np
 from censors.censor import Censor
+import os
 
 class ClassificationCensor(Censor):
 
     # I created an additional model path param so you enter the path of the ML model .joblib
-    def __init__(self, environment_id, forbidden, log_dir, log_level, port, queue_num, model_path):
+    def __init__(self, environment_id, forbidden, log_dir, log_level, port, queue_num, model_path="ML detectors/rfc.joblib"):
         #Same initialization as censor 1
         super().__init__(environment_id, log_dir, log_level, port, queue_num)
         self.forbidden = forbidden
         self.drop_all_from = None
         self.tcb = 0
         # Load pretrained ML model
+        if not os.path.exists(model_path):
+            model_path = "../" + model_path
+        print("LOADING THE GOD DAMN DETECTOR")
         self.detector = load(model_path)
         # Define features in a packet
         self.feature_extractor = ['# Non_zero_SYN', 'size', 'Max_pckt_size', '# overlapping TCP segments', '# of corrupt dataofs', 'ttl variance', 
@@ -35,11 +39,11 @@ class ClassificationCensor(Censor):
     def check_censor(self, packet):
         try:
             # Log the packet
-            self.logger.debug("Inbound packet to censor: " + layers.packet.Packet._str_packet(packet))
+            print("Inbound packet to censor: " + layers.packet.Packet._str_packet(packet))
 
             # Check if the IP is marked for dropping
             if self.drop_all_from == packet["IP"].src:
-                self.logger.debug(f"Dropping all packets from {self.drop_all_from}...")
+                print(f"Dropping all packets from {self.drop_all_from}...")
                 return True
         
             # Only process TCP packets
@@ -54,13 +58,13 @@ class ClassificationCensor(Censor):
             # Process packet payload for forbidden keywords
             for keyword in self.forbidden:
                 if keyword in self.get_payload(packet):
-                    self.logger.debug("Packet triggered censor due to forbidden keyword.")
+                    print("Packet triggered censor due to forbidden keyword.")
                     return True
 
             # Extract features and classify using the ML model
             features = self.extract_features(packet)
             if self.is_geneva(features):
-                self.logger.debug("Packet detected as Geneva.")
+                print("Packet detected as Geneva.")
                 return True
             
             return False
@@ -75,7 +79,7 @@ class ClassificationCensor(Censor):
         payload = self.get_payload(packet)
         for keyword in self.forbidden:
             if keyword in payload:
-                self.logger.debug("Packet payload contains forbidden keyword.")
+                print("Packet payload contains forbidden keyword.")
                 return True
         return False
 
@@ -107,5 +111,5 @@ class ClassificationCensor(Censor):
     """
     def censor(self, scapy_packet):
         self.drop_all_from = scapy_packet["IP"].src
-        self.logger.debug(f"Marking IP {self.drop_all_from} for dropping.")
+        print(f"Marking IP {self.drop_all_from} for dropping.")
         return "drop"
