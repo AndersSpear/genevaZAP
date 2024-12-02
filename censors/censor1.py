@@ -11,6 +11,7 @@ import logging
 import layers.packet
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import IP, TCP
+import os
 
 from censors.censor import Censor
 
