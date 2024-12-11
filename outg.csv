@@ -1,0 +1,11 @@
+tamper,combined.csv,keyword.csv,classifier.csv
+fragment{ip,2470,2719,1822
+fragment{tcp,14162,15648,6817
+options-altchksumopt:corrupt,9829,730,1332
+seq:corrupt,15311,569,4813
+seq:replace,6322,611,369
+options-uto:corrupt,532,738,2485
+load:replace,216,18797,3310
+options-timestamp:replace,1657,263,2479
+flags:replace,292,286,9582
+options-eol:replace,805,7409,393
